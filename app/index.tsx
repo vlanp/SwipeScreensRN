@@ -20,6 +20,10 @@ function Index() {
         height: "100%",
       }}
       onTouchStart={(e) => {
+        const disableOnTouch = useSwipeStore.getState().disableOnTouch;
+        if (disableOnTouch) {
+          return;
+        }
         const x = e.nativeEvent.locationX;
         // const toto = e.currentTarget.measure
         startTimeMs = performance.now();
@@ -29,11 +33,19 @@ function Index() {
         setOnTouchStartX(x);
       }}
       onTouchMove={(e) => {
+        const disableOnTouch = useSwipeStore.getState().disableOnTouch;
+        if (disableOnTouch) {
+          return;
+        }
         const x = e.nativeEvent.locationX;
         // console.log("onTouchMove", x);
         setOnTouchX(x);
       }}
       onTouchEnd={(e) => {
+        const disableOnTouch = useSwipeStore.getState().disableOnTouch;
+        if (disableOnTouch) {
+          return;
+        }
         const swipeXDurationMs = performance.now() - startTimeMs;
         setSwipeXDurationMs(swipeXDurationMs);
         const x = e.nativeEvent.locationX;
@@ -41,7 +53,17 @@ function Index() {
       }}
     >
       <LeftSwipeScreen />
-      <Text>Others cases</Text>
+      {/* <View
+        style={{
+          width: "30%",
+          height: "100%",
+          backgroundColor: "blue",
+          opacity: 0.5,
+        }}
+      ></View>
+      <View style={{ width: "40%", height: "100%" }}></View>
+
+      <View style={{ flex: 1, backgroundColor: "green", opacity: 0.5 }}></View> */}
     </View>
   );
 }

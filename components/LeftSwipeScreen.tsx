@@ -3,13 +3,13 @@ import { MutableRefObject, useRef } from "react";
 import { Platform, StyleSheet, useWindowDimensions, View } from "react-native";
 
 const LeftSwipeScreen = () => {
-  const prevMarginLeftPercent = useRef<number>(-100);
   const onTouchStartX = useSwipeStore((state) => state.onTouchStartX);
   const onTouchX = useSwipeStore((state) => state.onTouchX);
   const onTouchEndX = useSwipeStore((state) => state.onTouchEndX);
   const swipeXDurationMs = useSwipeStore((state) => state.swipeXDurationMs);
+  const setDisableOnTouch = useSwipeStore((state) => state.setDisableOnTouch);
   const screenWidth = useWindowDimensions().width;
-  const whoIsResponding = useRef<"self" | "parent">("parent");
+  const prevMarginLeftPercent = useRef<number>(-100);
   const leftMarginOffset = useRef<number>(0);
   let swipeXSpeed: number | null = null;
   if (onTouchStartX && onTouchEndX && swipeXDurationMs) {
@@ -22,9 +22,9 @@ const LeftSwipeScreen = () => {
     onTouchX,
     onTouchEndX,
     screenWidth,
-    whoIsResponding,
     leftMarginOffset,
-    swipeXSpeed
+    swipeXSpeed,
+    setDisableOnTouch
   );
 
   return (
@@ -43,14 +43,14 @@ const getStyles = (
   onTouchX: number | null,
   onTouchEndX: number | null,
   screenWidth: number,
-  whoIsResponding: MutableRefObject<"self" | "parent">,
   leftMarginOffset: MutableRefObject<number>,
-  swipeXSpeed: number | null
+  swipeXSpeed: number | null,
+  setDisableOnTouch: (disableOnTouch: boolean) => void
 ) => {
   let marginLeftPercent = prevMarginLeftPercent.current;
   if (onTouchStartX && onTouchX) {
     const correctedOnTouchX =
-      whoIsResponding.current === "self" && Platform.OS === "ios"
+      prevMarginLeftPercent.current === 0 && Platform.OS === "ios"
         ? onTouchX + leftMarginOffset.current
         : onTouchX;
     const tempMarginLeftPercent =
@@ -64,15 +64,33 @@ const getStyles = (
           : tempMarginLeftPercent;
   }
   if (onTouchEndX) {
-    const treshold = whoIsResponding.current === "self" ? -40 : -60;
-    if (marginLeftPercent > treshold || (swipeXSpeed || 0) > screenWidth / 4) {
+    // setDisableOnTouch(true);
+    const prevPosition: "middle" | "side" =
+      prevMarginLeftPercent.current === 0 ? "middle" : "side";
+    const xPositionMiddleTreshold = prevPosition === "middle" ? -30 : -70;
+    const positionByXPosition: "middle" | "side" =
+      marginLeftPercent > xPositionMiddleTreshold ? "middle" : "side";
+    const xSpeedTreshold = screenWidth / 4;
+    const positionByXSpeed: "middle" | "side" =
+      prevPosition === "middle"
+        ? (swipeXSpeed || 0) < -xSpeedTreshold
+          ? "side"
+          : "middle"
+        : (swipeXSpeed || 0) > xSpeedTreshold
+          ? "middle"
+          : "side";
+    const position =
+      positionByXPosition === prevPosition && positionByXSpeed === prevPosition
+        ? prevPosition
+        : prevPosition === "middle"
+          ? "side"
+          : "middle";
+    if (position === "middle") {
       marginLeftPercent = 0;
       prevMarginLeftPercent.current = 0;
-      whoIsResponding.current = "self";
     } else {
       marginLeftPercent = -100;
       prevMarginLeftPercent.current = -100;
-      whoIsResponding.current = "parent";
     }
   }
   const styles = StyleSheet.create({
