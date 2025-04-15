@@ -1,5 +1,6 @@
 import { Text, useWindowDimensions, View } from "react-native";
 import useSwipeStore from "@/zustands/useSwipeStore";
+import LeftSwipeScreen from "@/components/LeftSwipeScreen";
 
 function Index() {
   const setOnTouchStartX = useSwipeStore((state) => state.setOnTouchStartX);
@@ -35,7 +36,7 @@ function Index() {
         setOnTouchEndX(x);
       }}
     >
-      {/* <LeftSwipeModal /> */}
+      <LeftSwipeScreen />
       <Text>Others cases</Text>
     </View>
   );
