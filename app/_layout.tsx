@@ -36,7 +36,11 @@ const RootLayout = () => {
     return <ActivityIndicator />;
   }
 
-  return <Tabs />;
+  return (
+    <Tabs
+      screenOptions={{ headerShown: false, tabBarStyle: { display: "none" } }}
+    />
+  );
 };
 
 export default RootLayout;

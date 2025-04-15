@@ -1,10 +1,7 @@
-import "../wdyr";
 import { Text, useWindowDimensions, View } from "react-native";
-import useCountRender from "@/hooks/useCountRender";
 import useSwipeStore from "@/zustands/useSwipeStore";
 
 function Index() {
-  useCountRender();
   const setOnTouchStartX = useSwipeStore((state) => state.setOnTouchStartX);
   const setOnTouchX = useSwipeStore((state) => state.setOnTouchX);
   const setOnTouchEndX = useSwipeStore((state) => state.setOnTouchEndX);
@@ -38,12 +35,10 @@ function Index() {
         setOnTouchEndX(x);
       }}
     >
-      <LeftSwipeModal />
+      {/* <LeftSwipeModal /> */}
       <Text>Others cases</Text>
     </View>
   );
 }
-
-Index.whyDidYouRender = { logOnDifferentValues: true };
 
 export default Index;
