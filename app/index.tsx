@@ -1,4 +1,4 @@
-import { Text, useWindowDimensions, View } from "react-native";
+import { Text, View } from "react-native";
 import useSwipeStore from "@/zustands/useSwipeStore";
 import LeftSwipeScreen from "@/components/LeftSwipeScreen";
 
@@ -6,10 +6,10 @@ function Index() {
   const setOnTouchStartX = useSwipeStore((state) => state.setOnTouchStartX);
   const setOnTouchX = useSwipeStore((state) => state.setOnTouchX);
   const setOnTouchEndX = useSwipeStore((state) => state.setOnTouchEndX);
-  const { height, width } = useWindowDimensions();
-
-  console.log("height", height);
-  console.log("width", width);
+  const setSwipeXDurationMs = useSwipeStore(
+    (state) => state.setSwipeXDurationMs
+  );
+  let startTimeMs = 0;
 
   return (
     <View
@@ -22,6 +22,8 @@ function Index() {
       onTouchStart={(e) => {
         const x = e.nativeEvent.locationX;
         // const toto = e.currentTarget.measure
+        startTimeMs = performance.now();
+        setSwipeXDurationMs(null);
         setOnTouchEndX(null);
         setOnTouchX(null);
         setOnTouchStartX(x);
@@ -32,6 +34,8 @@ function Index() {
         setOnTouchX(x);
       }}
       onTouchEnd={(e) => {
+        const swipeXDurationMs = performance.now() - startTimeMs;
+        setSwipeXDurationMs(swipeXDurationMs);
         const x = e.nativeEvent.locationX;
         setOnTouchEndX(x);
       }}

@@ -7,9 +7,14 @@ const LeftSwipeScreen = () => {
   const onTouchStartX = useSwipeStore((state) => state.onTouchStartX);
   const onTouchX = useSwipeStore((state) => state.onTouchX);
   const onTouchEndX = useSwipeStore((state) => state.onTouchEndX);
+  const swipeXDurationMs = useSwipeStore((state) => state.swipeXDurationMs);
   const screenWidth = useWindowDimensions().width;
   const whoIsResponding = useRef<"self" | "parent">("parent");
   const leftMarginOffset = useRef<number>(0);
+  let swipeXSpeed: number | null = null;
+  if (onTouchStartX && onTouchEndX && swipeXDurationMs) {
+    swipeXSpeed = ((onTouchEndX - onTouchStartX) * 1000) / swipeXDurationMs;
+  }
 
   const styles = getStyles(
     prevMarginLeftPercent,
@@ -18,7 +23,8 @@ const LeftSwipeScreen = () => {
     onTouchEndX,
     screenWidth,
     whoIsResponding,
-    leftMarginOffset
+    leftMarginOffset,
+    swipeXSpeed
   );
 
   return (
@@ -38,7 +44,8 @@ const getStyles = (
   onTouchEndX: number | null,
   screenWidth: number,
   whoIsResponding: MutableRefObject<"self" | "parent">,
-  leftMarginOffset: MutableRefObject<number>
+  leftMarginOffset: MutableRefObject<number>,
+  swipeXSpeed: number | null
 ) => {
   let marginLeftPercent = prevMarginLeftPercent.current;
   if (onTouchStartX && onTouchX) {
@@ -57,8 +64,8 @@ const getStyles = (
           : tempMarginLeftPercent;
   }
   if (onTouchEndX) {
-    const treshold = whoIsResponding.current === "self" ? -30 : -70;
-    if (marginLeftPercent > treshold) {
+    const treshold = whoIsResponding.current === "self" ? -40 : -60;
+    if (marginLeftPercent > treshold || (swipeXSpeed || 0) > screenWidth / 4) {
       marginLeftPercent = 0;
       prevMarginLeftPercent.current = 0;
       whoIsResponding.current = "self";
